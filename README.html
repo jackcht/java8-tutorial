@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Modern Java - A Guide to Java 8</title>
+        <style>
+</style>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        
+        
+        
+    </head>
+    <body class="vscode-light">
+        <h1 id="modern-java---a-guide-to-java-8">Modern Java - A Guide to Java 8</h1>
+<p><em>This article was originally posted on <a href="http://winterbe.com/posts/2014/03/16/java-8-tutorial/">my blog</a>.</em></p>
+<blockquote>
+<p><strong>You should also read my <a href="https://winterbe.com/posts/2018/09/24/java-11-tutorial/">Java 11 Tutorial</a> (including new language and API features from Java 9, 10 and 11).</strong></p>
+</blockquote>
+<p>Welcome to my introduction to <a href="https://jdk8.java.net/">Java 8</a>. This tutorial guides you step by step through all new language features. Backed by short and simple code samples you'll learn how to use default interface methods, lambda expressions, method references and repeatable annotations. At the end of the article you'll be familiar with the most recent <a href="http://download.java.net/jdk8/docs/api/">API</a> changes like streams, functional interfaces, map extensions and the new Date API. <strong>No walls of text, just a bunch of commented code snippets. Enjoy!</strong></p>
+<hr>
+<p align="center">
+ ★★★ Like this project? Leave a star, <a href="https://twitter.com/winterbe_">follow on Twitter</a> or <a href="https://www.paypal.me/winterbe">donate</a> to support my work. Thanks! ★★★
+</p>
+<hr>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#default-methods-for-interfaces">Default Methods for Interfaces</a></li>
+<li><a href="#lambda-expressions">Lambda expressions</a></li>
+<li><a href="#functional-interfaces">Functional Interfaces</a></li>
+<li><a href="#method-and-constructor-references">Method and Constructor References</a></li>
+<li><a href="#lambda-scopes">Lambda Scopes</a>
+<ul>
+<li><a href="#accessing-local-variables">Accessing local variables</a></li>
+<li><a href="#accessing-fields-and-static-variables">Accessing fields and static variables</a></li>
+<li><a href="#accessing-default-interface-methods">Accessing Default Interface Methods</a></li>
+</ul>
+</li>
+<li><a href="#built-in-functional-interfaces">Built-in Functional Interfaces</a>
+<ul>
+<li><a href="#predicates">Predicates</a></li>
+<li><a href="#functions">Functions</a></li>
+<li><a href="#suppliers">Suppliers</a></li>
+<li><a href="#consumers">Consumers</a></li>
+<li><a href="#comparators">Comparators</a></li>
+</ul>
+</li>
+<li><a href="#optionals">Optionals</a></li>
+<li><a href="#streams">Streams</a>
+<ul>
+<li><a href="#filter">Filter</a></li>
+<li><a href="#sorted">Sorted</a></li>
+<li><a href="#map">Map</a></li>
+<li><a href="#match">Match</a></li>
+<li><a href="#count">Count</a></li>
+<li><a href="#reduce">Reduce</a></li>
+</ul>
+</li>
+<li><a href="#parallel-streams">Parallel Streams</a>
+<ul>
+<li><a href="#sequential-sort">Sequential Sort</a></li>
+<li><a href="#parallel-sort">Parallel Sort</a></li>
+</ul>
+</li>
+<li><a href="#maps">Maps</a></li>
+<li><a href="#date-api">Date API</a>
+<ul>
+<li><a href="#clock">Clock</a></li>
+<li><a href="#timezones">Timezones</a></li>
+<li><a href="#localtime">LocalTime</a></li>
+<li><a href="#localdate">LocalDate</a></li>
+<li><a href="#localdatetime">LocalDateTime</a></li>
+</ul>
+</li>
+<li><a href="#annotations">Annotations</a></li>
+<li><a href="#where-to-go-from-here">Where to go from here?</a></li>
+</ul>
+<h2 id="default-methods-for-interfaces">Default Methods for Interfaces</h2>
+<p>Java 8 enables us to add non-abstract method implementations to interfaces by utilizing the <code>default</code> keyword. This feature is also known as <a href="http://stackoverflow.com/a/24102730">virtual extension methods</a>.</p>
+<p>Here is our first example:</p>
+<pre><code class="language-java"><div><span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Formula</span> </span>{
+    <span class="hljs-function"><span class="hljs-keyword">double</span> <span class="hljs-title">calculate</span><span class="hljs-params">(<span class="hljs-keyword">int</span> a)</span></span>;
+
+    <span class="hljs-function"><span class="hljs-keyword">default</span> <span class="hljs-keyword">double</span> <span class="hljs-title">sqrt</span><span class="hljs-params">(<span class="hljs-keyword">int</span> a)</span> </span>{
+        <span class="hljs-keyword">return</span> Math.sqrt(a);
+    }
+}
+</div></code></pre>
+<p>Besides the abstract method <code>calculate</code> the interface <code>Formula</code> also defines the default method <code>sqrt</code>. Concrete classes only have to implement the abstract method <code>calculate</code>. The default method <code>sqrt</code> can be used out of the box.</p>
+<pre><code class="language-java"><div>Formula formula = <span class="hljs-keyword">new</span> Formula() {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">double</span> <span class="hljs-title">calculate</span><span class="hljs-params">(<span class="hljs-keyword">int</span> a)</span> </span>{
+        <span class="hljs-keyword">return</span> sqrt(a * <span class="hljs-number">100</span>);
+    }
+};
+
+formula.calculate(<span class="hljs-number">100</span>);     <span class="hljs-comment">// 100.0</span>
+formula.sqrt(<span class="hljs-number">16</span>);           <span class="hljs-comment">// 4.0</span>
+</div></code></pre>
+<p>The formula is implemented as an anonymous object. The code is quite verbose: 6 lines of code for such a simple calculation of <code>sqrt(a * 100)</code>. As we'll see in the next section, there's a much nicer way of implementing single method objects in Java 8.</p>
+<h2 id="lambda-expressions">Lambda expressions</h2>
+<p>Let's start with a simple example of how to sort a list of strings in prior versions of Java:</p>
+<pre><code class="language-java"><div>List&lt;String&gt; names = Arrays.asList(<span class="hljs-string">"peter"</span>, <span class="hljs-string">"anna"</span>, <span class="hljs-string">"mike"</span>, <span class="hljs-string">"xenia"</span>);
+
+Collections.sort(names, <span class="hljs-keyword">new</span> Comparator&lt;String&gt;() {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">compare</span><span class="hljs-params">(String a, String b)</span> </span>{
+        <span class="hljs-keyword">return</span> b.compareTo(a);
+    }
+});
+</div></code></pre>
+<p>The static utility method <code>Collections.sort</code> accepts a list and a comparator in order to sort the elements of the given list. You often find yourself creating anonymous comparators and pass them to the sort method.</p>
+<p>Instead of creating anonymous objects all day long, Java 8 comes with a much shorter syntax, <strong>lambda expressions</strong>:</p>
+<pre><code class="language-java"><div>Collections.sort(names, (String a, String b) -&gt; {
+    <span class="hljs-keyword">return</span> b.compareTo(a);
+});
+</div></code></pre>
+<p>As you can see the code is much shorter and easier to read. But it gets even shorter:</p>
+<pre><code class="language-java"><div>Collections.sort(names, (String a, String b) -&gt; b.compareTo(a));
+</div></code></pre>
+<p>For one line method bodies you can skip both the braces <code>{}</code> and the <code>return</code> keyword. But it gets even shorter:</p>
+<pre><code class="language-java"><div>names.sort((a, b) -&gt; b.compareTo(a));
+</div></code></pre>
+<p>List now has a <code>sort</code> method. Also the java compiler is aware of the parameter types so you can skip them as well. Let's dive deeper into how lambda expressions can be used in the wild.</p>
+<h2 id="functional-interfaces">Functional Interfaces</h2>
+<p>How does lambda expressions fit into Java's type system? Each lambda corresponds to a given type, specified by an interface. A so called <em>functional interface</em> must contain <strong>exactly one abstract method</strong> declaration. Each lambda expression of that type will be matched to this abstract method. Since default methods are not abstract you're free to add default methods to your functional interface.</p>
+<p>We can use arbitrary interfaces as lambda expressions as long as the interface only contains one abstract method. To ensure that your interface meet the requirements, you should add the <code>@FunctionalInterface</code> annotation. The compiler is aware of this annotation and throws a compiler error as soon as you try to add a second abstract method declaration to the interface.</p>
+<p>Example:</p>
+<pre><code class="language-java"><div><span class="hljs-meta">@FunctionalInterface</span>
+<span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Converter</span>&lt;<span class="hljs-title">F</span>, <span class="hljs-title">T</span>&gt; </span>{
+    <span class="hljs-function">T <span class="hljs-title">convert</span><span class="hljs-params">(F from)</span></span>;
+}
+</div></code></pre>
+<pre><code class="language-java"><div>Converter&lt;String, Integer&gt; converter = (from) -&gt; Integer.valueOf(from);
+Integer converted = converter.convert(<span class="hljs-string">"123"</span>);
+System.out.println(converted);    <span class="hljs-comment">// 123</span>
+</div></code></pre>
+<p>Keep in mind that the code is also valid if the <code>@FunctionalInterface</code> annotation would be omitted.</p>
+<h2 id="method-and-constructor-references">Method and Constructor References</h2>
+<p>The above example code can be further simplified by utilizing static method references:</p>
+<pre><code class="language-java"><div>Converter&lt;String, Integer&gt; converter = Integer::valueOf;
+Integer converted = converter.convert(<span class="hljs-string">"123"</span>);
+System.out.println(converted);   <span class="hljs-comment">// 123</span>
+</div></code></pre>
+<p>Java 8 enables you to pass references of methods or constructors via the <code>::</code> keyword. The above example shows how to reference a static method. But we can also reference object methods:</p>
+<pre><code class="language-java"><div><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Something</span> </span>{
+    <span class="hljs-function">String <span class="hljs-title">startsWith</span><span class="hljs-params">(String s)</span> </span>{
+        <span class="hljs-keyword">return</span> String.valueOf(s.charAt(<span class="hljs-number">0</span>));
+    }
+}
+</div></code></pre>
+<pre><code class="language-java"><div>Something something = <span class="hljs-keyword">new</span> Something();
+Converter&lt;String, String&gt; converter = something::startsWith;
+String converted = converter.convert(<span class="hljs-string">"Java"</span>);
+System.out.println(converted);    <span class="hljs-comment">// "J"</span>
+</div></code></pre>
+<p>Let's see how the <code>::</code> keyword works for constructors. First we define an example class with different constructors:</p>
+<pre><code class="language-java"><div><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> </span>{
+    String firstName;
+    String lastName;
+
+    Person() {}
+
+    Person(String firstName, String lastName) {
+        <span class="hljs-keyword">this</span>.firstName = firstName;
+        <span class="hljs-keyword">this</span>.lastName = lastName;
+    }
+}
+</div></code></pre>
+<p>Next we specify a person factory interface to be used for creating new persons:</p>
+<pre><code class="language-java"><div><span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">PersonFactory</span>&lt;<span class="hljs-title">P</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Person</span>&gt; </span>{
+    <span class="hljs-function">P <span class="hljs-title">create</span><span class="hljs-params">(String firstName, String lastName)</span></span>;
+}
+</div></code></pre>
+<p>Instead of implementing the factory manually, we glue everything together via constructor references:</p>
+<pre><code class="language-java"><div>PersonFactory&lt;Person&gt; personFactory = Person::<span class="hljs-keyword">new</span>;
+Person person = personFactory.create(<span class="hljs-string">"Peter"</span>, <span class="hljs-string">"Parker"</span>);
+</div></code></pre>
+<p>We create a reference to the Person constructor via <code>Person::new</code>. The Java compiler automatically chooses the right constructor by matching the signature of <code>PersonFactory.create</code>.</p>
+<h2 id="lambda-scopes">Lambda Scopes</h2>
+<p>Accessing outer scope variables from lambda expressions is very similar to anonymous objects. You can access final variables from the local outer scope as well as instance fields and static variables.</p>
+<h3 id="accessing-local-variables">Accessing local variables</h3>
+<p>We can read final local variables from the outer scope of lambda expressions:</p>
+<pre><code class="language-java"><div><span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> num = <span class="hljs-number">1</span>;
+Converter&lt;Integer, String&gt; stringConverter =
+        (from) -&gt; String.valueOf(from + num);
+
+stringConverter.convert(<span class="hljs-number">2</span>);     <span class="hljs-comment">// 3</span>
+</div></code></pre>
+<p>But different to anonymous objects the variable <code>num</code> does not have to be declared final. This code is also valid:</p>
+<pre><code class="language-java"><div><span class="hljs-keyword">int</span> num = <span class="hljs-number">1</span>;
+Converter&lt;Integer, String&gt; stringConverter =
+        (from) -&gt; String.valueOf(from + num);
+
+stringConverter.convert(<span class="hljs-number">2</span>);     <span class="hljs-comment">// 3</span>
+</div></code></pre>
+<p>However <code>num</code> must be implicitly final for the code to compile. The following code does <strong>not</strong> compile:</p>
+<pre><code class="language-java"><div><span class="hljs-keyword">int</span> num = <span class="hljs-number">1</span>;
+Converter&lt;Integer, String&gt; stringConverter =
+        (from) -&gt; String.valueOf(from + num);
+num = <span class="hljs-number">3</span>;
+</div></code></pre>
+<p>Writing to <code>num</code> from within the lambda expression is also prohibited.</p>
+<h3 id="accessing-fields-and-static-variables">Accessing fields and static variables</h3>
+<p>In contrast to local variables, we have both read and write access to instance fields and static variables from within lambda expressions. This behaviour is well known from anonymous objects.</p>
+<pre><code class="language-java"><div><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Lambda4</span> </span>{
+    <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> outerStaticNum;
+    <span class="hljs-keyword">int</span> outerNum;
+
+    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">testScopes</span><span class="hljs-params">()</span> </span>{
+        Converter&lt;Integer, String&gt; stringConverter1 = (from) -&gt; {
+            outerNum = <span class="hljs-number">23</span>;
+            <span class="hljs-keyword">return</span> String.valueOf(from);
+        };
+
+        Converter&lt;Integer, String&gt; stringConverter2 = (from) -&gt; {
+            outerStaticNum = <span class="hljs-number">72</span>;
+            <span class="hljs-keyword">return</span> String.valueOf(from);
+        };
+    }
+}
+</div></code></pre>
+<h3 id="accessing-default-interface-methods">Accessing Default Interface Methods</h3>
+<p>Remember the formula example from the first section? Interface <code>Formula</code> defines a default method <code>sqrt</code> which can be accessed from each formula instance including anonymous objects. This does not work with lambda expressions.</p>
+<p>Default methods <strong>cannot</strong> be accessed from within lambda expressions. The following code does not compile:</p>
+<pre><code class="language-java"><div>Formula formula = (a) -&gt; sqrt(a * <span class="hljs-number">100</span>);
+</div></code></pre>
+<h2 id="built-in-functional-interfaces">Built-in Functional Interfaces</h2>
+<p>The JDK 1.8 API contains many built-in functional interfaces. Some of them are well known from older versions of Java like <code>Comparator</code> or <code>Runnable</code>. Those existing interfaces are extended to enable Lambda support via the <code>@FunctionalInterface</code> annotation.</p>
+<p>But the Java 8 API is also full of new functional interfaces to make your life easier. Some of those new interfaces are well known from the <a href="https://code.google.com/p/guava-libraries/">Google Guava</a> library. Even if you're familiar with this library you should keep a close eye on how those interfaces are extended by some useful method extensions.</p>
+<h3 id="predicates">Predicates</h3>
+<p>Predicates are boolean-valued functions of one argument. The interface contains various default methods for composing predicates to complex logical terms (and, or, negate)</p>
+<pre><code class="language-java"><div>Predicate&lt;String&gt; predicate = (s) -&gt; s.length() &gt; <span class="hljs-number">0</span>;
+
+predicate.test(<span class="hljs-string">"foo"</span>);              <span class="hljs-comment">// true</span>
+predicate.negate().test(<span class="hljs-string">"foo"</span>);     <span class="hljs-comment">// false</span>
+
+Predicate&lt;Boolean&gt; nonNull = Objects::nonNull;
+Predicate&lt;Boolean&gt; isNull = Objects::isNull;
+
+Predicate&lt;String&gt; isEmpty = String::isEmpty;
+Predicate&lt;String&gt; isNotEmpty = isEmpty.negate();
+</div></code></pre>
+<h3 id="functions">Functions</h3>
+<p>Functions accept one argument and produce a result. Default methods can be used to chain multiple functions together (compose, andThen).</p>
+<pre><code class="language-java"><div>Function&lt;String, Integer&gt; toInteger = Integer::valueOf;
+Function&lt;String, String&gt; backToString = toInteger.andThen(String::valueOf);
+
+backToString.apply(<span class="hljs-string">"123"</span>);     <span class="hljs-comment">// "123"</span>
+</div></code></pre>
+<h3 id="suppliers">Suppliers</h3>
+<p>Suppliers produce a result of a given generic type. Unlike Functions, Suppliers don't accept arguments.</p>
+<pre><code class="language-java"><div>Supplier&lt;Person&gt; personSupplier = Person::<span class="hljs-keyword">new</span>;
+personSupplier.get();   <span class="hljs-comment">// new Person</span>
+</div></code></pre>
+<h3 id="consumers">Consumers</h3>
+<p>Consumers represent operations to be performed on a single input argument.</p>
+<pre><code class="language-java"><div>Consumer&lt;Person&gt; greeter = (p) -&gt; System.out.println(<span class="hljs-string">"Hello, "</span> + p.firstName);
+greeter.accept(<span class="hljs-keyword">new</span> Person(<span class="hljs-string">"Luke"</span>, <span class="hljs-string">"Skywalker"</span>));
+</div></code></pre>
+<h3 id="comparators">Comparators</h3>
+<p>Comparators are well known from older versions of Java. Java 8 adds various default methods to the interface.</p>
+<pre><code class="language-java"><div>Comparator&lt;Person&gt; comparator = (p1, p2) -&gt; p1.firstName.compareTo(p2.firstName);
+
+Person p1 = <span class="hljs-keyword">new</span> Person(<span class="hljs-string">"John"</span>, <span class="hljs-string">"Doe"</span>);
+Person p2 = <span class="hljs-keyword">new</span> Person(<span class="hljs-string">"Alice"</span>, <span class="hljs-string">"Wonderland"</span>);
+
+comparator.compare(p1, p2);             <span class="hljs-comment">// &gt; 0</span>
+comparator.reversed().compare(p1, p2);  <span class="hljs-comment">// &lt; 0</span>
+</div></code></pre>
+<h2 id="optionals">Optionals</h2>
+<p>Optionals are not functional interfaces, but nifty utilities to prevent <code>NullPointerException</code>. It's an important concept for the next section, so let's have a quick look at how Optionals work.</p>
+<p>Optional is a simple container for a value which may be null or non-null. Think of a method which may return a non-null result but sometimes return nothing. Instead of returning <code>null</code> you return an <code>Optional</code> in Java 8.</p>
+<pre><code class="language-java"><div>Optional&lt;String&gt; optional = Optional.of(<span class="hljs-string">"bam"</span>);
+
+optional.isPresent();           <span class="hljs-comment">// true</span>
+optional.get();                 <span class="hljs-comment">// "bam"</span>
+optional.orElse(<span class="hljs-string">"fallback"</span>);    <span class="hljs-comment">// "bam"</span>
+
+optional.ifPresent((s) -&gt; System.out.println(s.charAt(<span class="hljs-number">0</span>)));     <span class="hljs-comment">// "b"</span>
+</div></code></pre>
+<h2 id="streams">Streams</h2>
+<p>A <code>java.util.Stream</code> represents a sequence of elements on which one or more operations can be performed. Stream operations are either <em>intermediate</em> or <em>terminal</em>. While terminal operations return a result of a certain type, intermediate operations return the stream itself so you can chain multiple method calls in a row. Streams are created on a source, e.g. a <code>java.util.Collection</code> like lists or sets (maps are not supported). Stream operations can either be executed sequentially or parallely.</p>
+<blockquote>
+<p>Streams are extremely powerful, so I wrote a separate <a href="http://winterbe.com/posts/2014/07/31/java8-stream-tutorial-examples/">Java 8 Streams Tutorial</a>. <strong>You should also check out <a href="https://github.com/winterbe/sequency">Sequency</a> as a similiar library for the web.</strong></p>
+</blockquote>
+<p>Let's first look how sequential streams work. First we create a sample source in form of a list of strings:</p>
+<pre><code class="language-java"><div>List&lt;String&gt; stringCollection = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+stringCollection.add(<span class="hljs-string">"ddd2"</span>);
+stringCollection.add(<span class="hljs-string">"aaa2"</span>);
+stringCollection.add(<span class="hljs-string">"bbb1"</span>);
+stringCollection.add(<span class="hljs-string">"aaa1"</span>);
+stringCollection.add(<span class="hljs-string">"bbb3"</span>);
+stringCollection.add(<span class="hljs-string">"ccc"</span>);
+stringCollection.add(<span class="hljs-string">"bbb2"</span>);
+stringCollection.add(<span class="hljs-string">"ddd1"</span>);
+</div></code></pre>
+<p>Collections in Java 8 are extended so you can simply create streams either by calling <code>Collection.stream()</code> or <code>Collection.parallelStream()</code>. The following sections explain the most common stream operations.</p>
+<h3 id="filter">Filter</h3>
+<p>Filter accepts a predicate to filter all elements of the stream. This operation is <em>intermediate</em> which enables us to call another stream operation (<code>forEach</code>) on the result. ForEach accepts a consumer to be executed for each element in the filtered stream. ForEach is a terminal operation. It's <code>void</code>, so we cannot call another stream operation.</p>
+<pre><code class="language-java"><div>stringCollection
+    .stream()
+    .filter((s) -&gt; s.startsWith(<span class="hljs-string">"a"</span>))
+    .forEach(System.out::println);
+
+<span class="hljs-comment">// "aaa2", "aaa1"</span>
+</div></code></pre>
+<h3 id="sorted">Sorted</h3>
+<p>Sorted is an <em>intermediate</em> operation which returns a sorted view of the stream. The elements are sorted in natural order unless you pass a custom <code>Comparator</code>.</p>
+<pre><code class="language-java"><div>stringCollection
+    .stream()
+    .sorted()
+    .filter((s) -&gt; s.startsWith(<span class="hljs-string">"a"</span>))
+    .forEach(System.out::println);
+
+<span class="hljs-comment">// "aaa1", "aaa2"</span>
+</div></code></pre>
+<p>Keep in mind that <code>sorted</code> does only create a sorted view of the stream without manipulating the ordering of the backed collection. The ordering of <code>stringCollection</code> is untouched:</p>
+<pre><code class="language-java"><div>System.out.println(stringCollection);
+<span class="hljs-comment">// ddd2, aaa2, bbb1, aaa1, bbb3, ccc, bbb2, ddd1</span>
+</div></code></pre>
+<h3 id="map">Map</h3>
+<p>The <em>intermediate</em> operation <code>map</code> converts each element into another object via the given function. The following example converts each string into an upper-cased string. But you can also use <code>map</code> to transform each object into another type. The generic type of the resulting stream depends on the generic type of the function you pass to <code>map</code>.</p>
+<pre><code class="language-java"><div>stringCollection
+    .stream()
+    .map(String::toUpperCase)
+    .sorted((a, b) -&gt; b.compareTo(a))
+    .forEach(System.out::println);
+
+<span class="hljs-comment">// "DDD2", "DDD1", "CCC", "BBB3", "BBB2", "AAA2", "AAA1"</span>
+</div></code></pre>
+<h3 id="match">Match</h3>
+<p>Various matching operations can be used to check whether a certain predicate matches the stream. All of those operations are <em>terminal</em> and return a boolean result.</p>
+<pre><code class="language-java"><div><span class="hljs-keyword">boolean</span> anyStartsWithA =
+    stringCollection
+        .stream()
+        .anyMatch((s) -&gt; s.startsWith(<span class="hljs-string">"a"</span>));
+
+System.out.println(anyStartsWithA);      <span class="hljs-comment">// true</span>
+
+<span class="hljs-keyword">boolean</span> allStartsWithA =
+    stringCollection
+        .stream()
+        .allMatch((s) -&gt; s.startsWith(<span class="hljs-string">"a"</span>));
+
+System.out.println(allStartsWithA);      <span class="hljs-comment">// false</span>
+
+<span class="hljs-keyword">boolean</span> noneStartsWithZ =
+    stringCollection
+        .stream()
+        .noneMatch((s) -&gt; s.startsWith(<span class="hljs-string">"z"</span>));
+
+System.out.println(noneStartsWithZ);      <span class="hljs-comment">// true</span>
+</div></code></pre>
+<h4 id="count">Count</h4>
+<p>Count is a <em>terminal</em> operation returning the number of elements in the stream as a <code>long</code>.</p>
+<pre><code class="language-java"><div><span class="hljs-keyword">long</span> startsWithB =
+    stringCollection
+        .stream()
+        .filter((s) -&gt; s.startsWith(<span class="hljs-string">"b"</span>))
+        .count();
+
+System.out.println(startsWithB);    <span class="hljs-comment">// 3</span>
+</div></code></pre>
+<h3 id="reduce">Reduce</h3>
+<p>This <em>terminal</em> operation performs a reduction on the elements of the stream with the given function. The result is an <code>Optional</code> holding the reduced value.</p>
+<pre><code class="language-java"><div>Optional&lt;String&gt; reduced =
+    stringCollection
+        .stream()
+        .sorted()
+        .reduce((s1, s2) -&gt; s1 + <span class="hljs-string">"#"</span> + s2);
+
+reduced.ifPresent(System.out::println);
+<span class="hljs-comment">// "aaa1#aaa2#bbb1#bbb2#bbb3#ccc#ddd1#ddd2"</span>
+</div></code></pre>
+<h2 id="parallel-streams">Parallel Streams</h2>
+<p>As mentioned above streams can be either sequential or parallel. Operations on sequential streams are performed on a single thread while operations on parallel streams are performed concurrently on multiple threads.</p>
+<p>The following example demonstrates how easy it is to increase the performance by using parallel streams.</p>
+<p>First we create a large list of unique elements:</p>
+<pre><code class="language-java"><div><span class="hljs-keyword">int</span> max = <span class="hljs-number">1000000</span>;
+List&lt;String&gt; values = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;(max);
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; max; i++) {
+    UUID uuid = UUID.randomUUID();
+    values.add(uuid.toString());
+}
+</div></code></pre>
+<p>Now we measure the time it takes to sort a stream of this collection.</p>
+<h3 id="sequential-sort">Sequential Sort</h3>
+<pre><code class="language-java"><div><span class="hljs-keyword">long</span> t0 = System.nanoTime();
+
+<span class="hljs-keyword">long</span> count = values.stream().sorted().count();
+System.out.println(count);
+
+<span class="hljs-keyword">long</span> t1 = System.nanoTime();
+
+<span class="hljs-keyword">long</span> millis = TimeUnit.NANOSECONDS.toMillis(t1 - t0);
+System.out.println(String.format(<span class="hljs-string">"sequential sort took: %d ms"</span>, millis));
+
+<span class="hljs-comment">// sequential sort took: 899 ms</span>
+</div></code></pre>
+<h3 id="parallel-sort">Parallel Sort</h3>
+<pre><code class="language-java"><div><span class="hljs-keyword">long</span> t0 = System.nanoTime();
+
+<span class="hljs-keyword">long</span> count = values.parallelStream().sorted().count();
+System.out.println(count);
+
+<span class="hljs-keyword">long</span> t1 = System.nanoTime();
+
+<span class="hljs-keyword">long</span> millis = TimeUnit.NANOSECONDS.toMillis(t1 - t0);
+System.out.println(String.format(<span class="hljs-string">"parallel sort took: %d ms"</span>, millis));
+
+<span class="hljs-comment">// parallel sort took: 472 ms</span>
+</div></code></pre>
+<p>As you can see both code snippets are almost identical but the parallel sort is roughly 50% faster. All you have to do is change <code>stream()</code> to <code>parallelStream()</code>.</p>
+<h2 id="maps">Maps</h2>
+<p>As already mentioned maps do not directly support streams. There's no <code>stream()</code> method available on the <code>Map</code> interface itself, however you can create specialized streams upon the keys, values or entries of a map via <code>map.keySet().stream()</code>, <code>map.values().stream()</code> and <code>map.entrySet().stream()</code>.</p>
+<p>Furthermore maps support various new and useful methods for doing common tasks.</p>
+<pre><code class="language-java"><div>Map&lt;Integer, String&gt; map = <span class="hljs-keyword">new</span> HashMap&lt;&gt;();
+
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; i++) {
+    map.putIfAbsent(i, <span class="hljs-string">"val"</span> + i);
+}
+
+map.forEach((id, val) -&gt; System.out.println(val));
+</div></code></pre>
+<p>The above code should be self-explaining: <code>putIfAbsent</code> prevents us from writing additional if null checks; <code>forEach</code> accepts a consumer to perform operations for each value of the map.</p>
+<p>This example shows how to compute code on the map by utilizing functions:</p>
+<pre><code class="language-java"><div>map.computeIfPresent(<span class="hljs-number">3</span>, (num, val) -&gt; val + num);
+map.get(<span class="hljs-number">3</span>);             <span class="hljs-comment">// val33</span>
+
+map.computeIfPresent(<span class="hljs-number">9</span>, (num, val) -&gt; <span class="hljs-keyword">null</span>);
+map.containsKey(<span class="hljs-number">9</span>);     <span class="hljs-comment">// false</span>
+
+map.computeIfAbsent(<span class="hljs-number">23</span>, num -&gt; <span class="hljs-string">"val"</span> + num);
+map.containsKey(<span class="hljs-number">23</span>);    <span class="hljs-comment">// true</span>
+
+map.computeIfAbsent(<span class="hljs-number">3</span>, num -&gt; <span class="hljs-string">"bam"</span>);
+map.get(<span class="hljs-number">3</span>);             <span class="hljs-comment">// val33</span>
+</div></code></pre>
+<p>Next, we learn how to remove entries for a given key, only if it's currently mapped to a given value:</p>
+<pre><code class="language-java"><div>map.remove(<span class="hljs-number">3</span>, <span class="hljs-string">"val3"</span>);
+map.get(<span class="hljs-number">3</span>);             <span class="hljs-comment">// val33</span>
+
+map.remove(<span class="hljs-number">3</span>, <span class="hljs-string">"val33"</span>);
+map.get(<span class="hljs-number">3</span>);             <span class="hljs-comment">// null</span>
+</div></code></pre>
+<p>Another helpful method:</p>
+<pre><code class="language-java"><div>map.getOrDefault(<span class="hljs-number">42</span>, <span class="hljs-string">"not found"</span>);  <span class="hljs-comment">// not found</span>
+</div></code></pre>
+<p>Merging entries of a map is quite easy:</p>
+<pre><code class="language-java"><div>map.merge(<span class="hljs-number">9</span>, <span class="hljs-string">"val9"</span>, (value, newValue) -&gt; value.concat(newValue));
+map.get(<span class="hljs-number">9</span>);             <span class="hljs-comment">// val9</span>
+
+map.merge(<span class="hljs-number">9</span>, <span class="hljs-string">"concat"</span>, (value, newValue) -&gt; value.concat(newValue));
+map.get(<span class="hljs-number">9</span>);             <span class="hljs-comment">// val9concat</span>
+</div></code></pre>
+<p>Merge either put the key/value into the map if no entry for the key exists, or the merging function will be called to change the existing value.</p>
+<h2 id="date-api">Date API</h2>
+<p>Java 8 contains a brand new date and time API under the package <code>java.time</code>. The new Date API is comparable with the <a href="http://www.joda.org/joda-time/">Joda-Time</a> library, however it's <a href="http://blog.joda.org/2009/11/why-jsr-310-isn-joda-time_4941.html">not the same</a>. The following examples cover the most important parts of this new API.</p>
+<h3 id="clock">Clock</h3>
+<p>Clock provides access to the current date and time. Clocks are aware of a timezone and may be used instead of <code>System.currentTimeMillis()</code> to retrieve the current time in milliseconds since Unix EPOCH. Such an instantaneous point on the time-line is also represented by the class <code>Instant</code>. Instants can be used to create legacy <code>java.util.Date</code> objects.</p>
+<pre><code class="language-java"><div>Clock clock = Clock.systemDefaultZone();
+<span class="hljs-keyword">long</span> millis = clock.millis();
+
+Instant instant = clock.instant();
+Date legacyDate = Date.from(instant);   <span class="hljs-comment">// legacy java.util.Date</span>
+</div></code></pre>
+<h3 id="timezones">Timezones</h3>
+<p>Timezones are represented by a <code>ZoneId</code>. They can easily be accessed via static factory methods. Timezones define the offsets which are important to convert between instants and local dates and times.</p>
+<pre><code class="language-java"><div>System.out.println(ZoneId.getAvailableZoneIds());
+<span class="hljs-comment">// prints all available timezone ids</span>
+
+ZoneId zone1 = ZoneId.of(<span class="hljs-string">"Europe/Berlin"</span>);
+ZoneId zone2 = ZoneId.of(<span class="hljs-string">"Brazil/East"</span>);
+System.out.println(zone1.getRules());
+System.out.println(zone2.getRules());
+
+<span class="hljs-comment">// ZoneRules[currentStandardOffset=+01:00]</span>
+<span class="hljs-comment">// ZoneRules[currentStandardOffset=-03:00]</span>
+</div></code></pre>
+<h3 id="localtime">LocalTime</h3>
+<p>LocalTime represents a time without a timezone, e.g. 10pm or 17:30:15. The following example creates two local times for the timezones defined above. Then we compare both times and calculate the difference in hours and minutes between both times.</p>
+<pre><code class="language-java"><div>LocalTime now1 = LocalTime.now(zone1);
+LocalTime now2 = LocalTime.now(zone2);
+
+System.out.println(now1.isBefore(now2));  <span class="hljs-comment">// false</span>
+
+<span class="hljs-keyword">long</span> hoursBetween = ChronoUnit.HOURS.between(now1, now2);
+<span class="hljs-keyword">long</span> minutesBetween = ChronoUnit.MINUTES.between(now1, now2);
+
+System.out.println(hoursBetween);       <span class="hljs-comment">// -3</span>
+System.out.println(minutesBetween);     <span class="hljs-comment">// -239</span>
+</div></code></pre>
+<p>LocalTime comes with various factory methods to simplify the creation of new instances, including parsing of time strings.</p>
+<pre><code class="language-java"><div>LocalTime late = LocalTime.of(<span class="hljs-number">23</span>, <span class="hljs-number">59</span>, <span class="hljs-number">59</span>);
+System.out.println(late);       <span class="hljs-comment">// 23:59:59</span>
+
+DateTimeFormatter germanFormatter =
+    DateTimeFormatter
+        .ofLocalizedTime(FormatStyle.SHORT)
+        .withLocale(Locale.GERMAN);
+
+LocalTime leetTime = LocalTime.parse(<span class="hljs-string">"13:37"</span>, germanFormatter);
+System.out.println(leetTime);   <span class="hljs-comment">// 13:37</span>
+</div></code></pre>
+<h3 id="localdate">LocalDate</h3>
+<p>LocalDate represents a distinct date, e.g. 2014-03-11. It's immutable and works exactly analog to LocalTime. The sample demonstrates how to calculate new dates by adding or subtracting days, months or years. Keep in mind that each manipulation returns a new instance.</p>
+<pre><code class="language-java"><div>LocalDate today = LocalDate.now();
+LocalDate tomorrow = today.plus(<span class="hljs-number">1</span>, ChronoUnit.DAYS);
+LocalDate yesterday = tomorrow.minusDays(<span class="hljs-number">2</span>);
+
+LocalDate independenceDay = LocalDate.of(<span class="hljs-number">2014</span>, Month.JULY, <span class="hljs-number">4</span>);
+DayOfWeek dayOfWeek = independenceDay.getDayOfWeek();
+System.out.println(dayOfWeek);    <span class="hljs-comment">// FRIDAY</span>
+</div></code></pre>
+<p>Parsing a LocalDate from a string is just as simple as parsing a LocalTime:</p>
+<pre><code class="language-java"><div>DateTimeFormatter germanFormatter =
+    DateTimeFormatter
+        .ofLocalizedDate(FormatStyle.MEDIUM)
+        .withLocale(Locale.GERMAN);
+
+LocalDate xmas = LocalDate.parse(<span class="hljs-string">"24.12.2014"</span>, germanFormatter);
+System.out.println(xmas);   <span class="hljs-comment">// 2014-12-24</span>
+</div></code></pre>
+<h3 id="localdatetime">LocalDateTime</h3>
+<p>LocalDateTime represents a date-time. It combines date and time as seen in the above sections into one instance. <code>LocalDateTime</code> is immutable and works similar to LocalTime and LocalDate. We can utilize methods for retrieving certain fields from a date-time:</p>
+<pre><code class="language-java"><div>LocalDateTime sylvester = LocalDateTime.of(<span class="hljs-number">2014</span>, Month.DECEMBER, <span class="hljs-number">31</span>, <span class="hljs-number">23</span>, <span class="hljs-number">59</span>, <span class="hljs-number">59</span>);
+
+DayOfWeek dayOfWeek = sylvester.getDayOfWeek();
+System.out.println(dayOfWeek);      <span class="hljs-comment">// WEDNESDAY</span>
+
+Month month = sylvester.getMonth();
+System.out.println(month);          <span class="hljs-comment">// DECEMBER</span>
+
+<span class="hljs-keyword">long</span> minuteOfDay = sylvester.getLong(ChronoField.MINUTE_OF_DAY);
+System.out.println(minuteOfDay);    <span class="hljs-comment">// 1439</span>
+</div></code></pre>
+<p>With the additional information of a timezone it can be converted to an instant. Instants can easily be converted to legacy dates of type <code>java.util.Date</code>.</p>
+<pre><code class="language-java"><div>Instant instant = sylvester
+        .atZone(ZoneId.systemDefault())
+        .toInstant();
+
+Date legacyDate = Date.from(instant);
+System.out.println(legacyDate);     <span class="hljs-comment">// Wed Dec 31 23:59:59 CET 2014</span>
+</div></code></pre>
+<p>Formatting date-times works just like formatting dates or times. Instead of using pre-defined formats we can create formatters from custom patterns.</p>
+<pre><code class="language-java"><div>DateTimeFormatter formatter =
+    DateTimeFormatter
+        .ofPattern(<span class="hljs-string">"MMM dd, yyyy - HH:mm"</span>);
+
+LocalDateTime parsed = LocalDateTime.parse(<span class="hljs-string">"Nov 03, 2014 - 07:13"</span>, formatter);
+String string = formatter.format(parsed);
+System.out.println(string);     <span class="hljs-comment">// Nov 03, 2014 - 07:13</span>
+</div></code></pre>
+<p>Unlike <code>java.text.NumberFormat</code> the new <code>DateTimeFormatter</code> is immutable and <strong>thread-safe</strong>.</p>
+<p>For details on the pattern syntax read <a href="https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html">here</a>.</p>
+<h2 id="annotations">Annotations</h2>
+<p>Annotations in Java 8 are repeatable. Let's dive directly into an example to figure that out.</p>
+<p>First, we define a wrapper annotation which holds an array of the actual annotations:</p>
+<pre><code class="language-java"><div><span class="hljs-meta">@interface</span> Hints {
+    Hint[] value();
+}
+
+<span class="hljs-meta">@Repeatable</span>(Hints.class)
+<span class="hljs-meta">@interface</span> Hint {
+    <span class="hljs-function">String <span class="hljs-title">value</span><span class="hljs-params">()</span></span>;
+}
+</div></code></pre>
+<p>Java 8 enables us to use multiple annotations of the same type by declaring the annotation <code>@Repeatable</code>.</p>
+<h3 id="variant-1-using-the-container-annotation-old-school">Variant 1: Using the container annotation (old school)</h3>
+<pre><code class="language-java"><div><span class="hljs-meta">@Hints</span>({<span class="hljs-meta">@Hint</span>(<span class="hljs-string">"hint1"</span>), <span class="hljs-meta">@Hint</span>(<span class="hljs-string">"hint2"</span>)})
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> </span>{}
+</div></code></pre>
+<h3 id="variant-2-using-repeatable-annotations-new-school">Variant 2: Using repeatable annotations (new school)</h3>
+<pre><code class="language-java"><div><span class="hljs-meta">@Hint</span>(<span class="hljs-string">"hint1"</span>)
+<span class="hljs-meta">@Hint</span>(<span class="hljs-string">"hint2"</span>)
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Person</span> </span>{}
+</div></code></pre>
+<p>Using variant 2 the java compiler implicitly sets up the <code>@Hints</code> annotation under the hood. That's important for reading annotation information via reflection.</p>
+<pre><code class="language-java"><div>Hint hint = Person.class.getAnnotation(Hint.class);
+System.out.println(hint);                   <span class="hljs-comment">// null</span>
+
+Hints hints1 = Person.class.getAnnotation(Hints.class);
+System.out.println(hints1.value().length);  <span class="hljs-comment">// 2</span>
+
+Hint[] hints2 = Person.class.getAnnotationsByType(Hint.class);
+System.out.println(hints2.length);          <span class="hljs-comment">// 2</span>
+</div></code></pre>
+<p>Although we never declared the <code>@Hints</code> annotation on the <code>Person</code> class, it's still readable via <code>getAnnotation(Hints.class)</code>. However, the more convenient method is <code>getAnnotationsByType</code> which grants direct access to all annotated <code>@Hint</code> annotations.</p>
+<p>Furthermore the usage of annotations in Java 8 is expanded to two new targets:</p>
+<pre><code class="language-java"><div><span class="hljs-meta">@Target</span>({ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})
+<span class="hljs-meta">@interface</span> MyAnnotation {}
+</div></code></pre>
+<h2 id="where-to-go-from-here">Where to go from here?</h2>
+<p>My programming guide to Java 8 ends here. If you want to learn more about all the new classes and features of the JDK 8 API, check out my <a href="http://winterbe.com/projects/java8-explorer/">JDK8 API Explorer</a>. It helps you figuring out all the new classes and hidden gems of JDK 8, like <code>Arrays.parallelSort</code>, <code>StampedLock</code> and <code>CompletableFuture</code> - just to name a few.</p>
+<p>I've also published a bunch of follow-up articles on my <a href="http://winterbe.com">blog</a> that might be interesting to you:</p>
+<ul>
+<li><a href="http://winterbe.com/posts/2014/07/31/java8-stream-tutorial-examples/">Java 8 Stream Tutorial</a></li>
+<li><a href="http://winterbe.com/posts/2014/04/05/java8-nashorn-tutorial/">Java 8 Nashorn Tutorial</a></li>
+<li><a href="http://winterbe.com/posts/2015/04/07/java8-concurrency-tutorial-thread-executor-examples/">Java 8 Concurrency Tutorial: Threads and Executors</a></li>
+<li><a href="http://winterbe.com/posts/2015/04/30/java8-concurrency-tutorial-synchronized-locks-examples/">Java 8 Concurrency Tutorial: Synchronization and Locks</a></li>
+<li><a href="http://winterbe.com/posts/2015/05/22/java8-concurrency-tutorial-atomic-concurrent-map-examples/">Java 8 Concurrency Tutorial: Atomic Variables and ConcurrentMap</a></li>
+<li><a href="http://winterbe.com/posts/2015/03/25/java8-examples-string-number-math-files/">Java 8 API by Example: Strings, Numbers, Math and Files</a></li>
+<li><a href="http://winterbe.com/posts/2015/03/15/avoid-null-checks-in-java/">Avoid Null Checks in Java 8</a></li>
+<li><a href="http://winterbe.com/posts/2015/03/05/fixing-java-8-stream-gotchas-with-intellij-idea/">Fixing Java 8 Stream Gotchas with IntelliJ IDEA</a></li>
+<li><a href="http://winterbe.com/posts/2014/04/07/using-backbonejs-with-nashorn/">Using Backbone.js with Java 8 Nashorn</a></li>
+</ul>
+<p>You should <a href="https://twitter.com/winterbe_">follow me on Twitter</a>. Thanks for reading!</p>
+
+    </body>
+    </html>
