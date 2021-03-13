@@ -30,6 +30,7 @@ public class LocalDateTime1 {
         Instant instant = sylvester
                 .atZone(ZoneId.systemDefault())
                 .toInstant();
+        System.out.println(instant);    // 2015-01-01T04:59:59Z
 
         Date legacyDate = Date.from(instant);
         System.out.println(legacyDate);     // Wed Dec 31 23:59:59 CET 2014
