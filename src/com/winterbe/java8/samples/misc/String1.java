@@ -16,6 +16,11 @@ public class String1 {
         testPatternSplit();
     }
 
+    private static void testJoin() {
+        String string = String.join(":", "foobar", "foo", "bar");
+        System.out.println(string);     // foobar:foo:bar
+    }
+
     private static void testChars() {
         String string = "foobar:foo:bar"
                 .chars()
@@ -23,7 +28,14 @@ public class String1 {
                 .mapToObj(c -> String.valueOf((char) c))
                 .sorted()
                 .collect(Collectors.joining());
-        System.out.println(string);
+        System.out.println(string);     // :abfor
+    }
+
+    private static void testPatternPredicate() {
+        long count = Stream.of("bob@gmail.com", "alice@hotmail.com")
+                .filter(Pattern.compile(".*@gmail\\.com").asPredicate())
+                .count();
+        System.out.println(count);      // 1
     }
 
     private static void testPatternSplit() {
@@ -32,18 +44,6 @@ public class String1 {
                 .filter(s -> s.contains("bar"))
                 .sorted()
                 .collect(Collectors.joining(":"));
-        System.out.println(string);
-    }
-
-    private static void testPatternPredicate() {
-        long count = Stream.of("bob@gmail.com", "alice@hotmail.com")
-                .filter(Pattern.compile(".*@gmail\\.com").asPredicate())
-                .count();
-        System.out.println(count);
-    }
-
-    private static void testJoin() {
-        String string = String.join(":", "foobar", "foo", "bar");
-        System.out.println(string);
+        System.out.println(string);     // bar:foobar
     }
 }
