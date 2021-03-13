@@ -30,7 +30,6 @@ public class Annotations1 {
     @Hint("hint1")
     @Hint("hint2")
     class Person {
-
     }
 
     public static void main(String[] args) {
@@ -39,9 +38,11 @@ public class Annotations1 {
 
         Hints hints1 = Person.class.getAnnotation(Hints.class);
         System.out.println(hints1.value().length);  // 2
+        System.out.println(hints1.value());  // [Lcom.winterbe.java8.samples.misc.Annotations1$Hint;@1d44bcfa
 
         Hint[] hints2 = Person.class.getAnnotationsByType(Hint.class);
         System.out.println(hints2.length);  // 2
+        System.out.println(hints2);  // [Lcom.winterbe.java8.samples.misc.Annotations1$Hint;@5e481248
 
     }
 }
