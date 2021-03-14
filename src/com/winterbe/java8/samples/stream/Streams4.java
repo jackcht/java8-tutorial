@@ -15,7 +15,7 @@ public class Streams4 {
             }
         }
 
-        IntStream.range(0, 10)
+        IntStream.range(0, 10)  // this can replace for-loop
             .forEach(i -> {
                 if (i % 2 == 1) System.out.println(i);
             });
@@ -26,12 +26,12 @@ public class Streams4 {
 
         OptionalInt reduced1 =
             IntStream.range(0, 10)
-                .reduce((a, b) -> a + b);
-        System.out.println(reduced1.getAsInt());
+                .reduce((a, b) -> a + b);   // reduce(Integer:sum)
+        System.out.println(reduced1.getAsInt());        // 45
 
         int reduced2 =
             IntStream.range(0, 10)
-                .reduce(7, (a, b) -> a + b);
+                .reduce(7, (a, b) -> a + b);    // identity can be regarded as INITIAL value ==> 52
         System.out.println(reduced2);
     }
 }

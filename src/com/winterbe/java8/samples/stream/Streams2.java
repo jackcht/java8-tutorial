@@ -28,9 +28,10 @@ public class Streams2 {
                 .sorted()
                 .forEach(System.out::println);
 
+        // the above sorting didn't change the original sequence
         System.out.println(stringCollection);
+        // ==> [ddd2, aaa2, bbb1, aaa1, bbb3, ccc, bbb2, ddd1]
 
-        
 
     }
 

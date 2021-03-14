@@ -24,12 +24,12 @@ public class Streams3 {
         long t0 = System.nanoTime();
 
         long count = values.stream().sorted().count();
-        System.out.println(count);
+        System.out.println(count);      // 1000000
 
         long t1 = System.nanoTime();
 
         long millis = TimeUnit.NANOSECONDS.toMillis(t1 - t0);
-        System.out.println(String.format("sequential sort took: %d ms", millis));
+        System.out.printf("sequential sort took: %d ms%n", millis); //sequential sort took: 548 ms
     }
 
     public static void sortParallel() {
@@ -44,12 +44,12 @@ public class Streams3 {
         long t0 = System.nanoTime();
 
         long count = values.parallelStream().sorted().count();
-        System.out.println(count);
+        System.out.println(count);      // 1000000
 
         long t1 = System.nanoTime();
 
         long millis = TimeUnit.NANOSECONDS.toMillis(t1 - t0);
-        System.out.println(String.format("parallel sort took: %d ms", millis));
+        System.out.printf("parallel sort took: %d ms%n", millis);     // parallel sort took: 245 ms
     }
 
     public static void main(String[] args) {
