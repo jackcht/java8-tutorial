@@ -3,7 +3,7 @@ package com.winterbe;
 
 import java.util.Arrays;
 
-public class test {
+public class varargs {
 
     public static void main(String[] args){
         testVarargs("1", "2", "3", "4");
