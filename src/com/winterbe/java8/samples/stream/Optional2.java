@@ -55,7 +55,7 @@ public class Optional2 {
     private static void test3() {
         Outer outer = new Outer();
         resolve(() -> outer.getNested().getInner().getFoo())
-                .ifPresent(System.out::println);
+                .ifPresent(System.out::println);    //"boo";
     }
 
     private static void test2() {
@@ -63,7 +63,7 @@ public class Optional2 {
                 .map(Outer::getNested)
                 .map(Nested::getInner)
                 .map(Inner::getFoo)
-                .ifPresent(System.out::println);
+                .ifPresent(System.out::println);    //"boo";
     }
 
     private static void test1() {
@@ -71,6 +71,6 @@ public class Optional2 {
                 .flatMap(o -> Optional.ofNullable(o.nested))
                 .flatMap(n -> Optional.ofNullable(n.inner))
                 .flatMap(i -> Optional.ofNullable(i.foo))
-                .ifPresent(System.out::println);
+                .ifPresent(System.out::println);    //"boo";
     }
 }
