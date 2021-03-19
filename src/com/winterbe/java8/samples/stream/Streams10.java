@@ -43,8 +43,8 @@ public class Streams10 {
 //        test5(persons);
 //        test6(persons);
 //        test7(persons);
-//        test8(persons);
-        test9(persons);
+        test8(persons);
+//        test9(persons);
     }
 
     private static void test1(List<Person> persons) {
@@ -103,18 +103,34 @@ public class Streams10 {
         Map<Integer, String> map = persons
             .stream()
             .collect(Collectors.toMap(
-                p -> p.age,
-                p -> p.name,
-                (name1, name2) -> name1 + ";" + name2));
+                p -> p.age,     // first parameter: key function for the map
+                p -> p.name,    // // second parameter: value function for the map
+                (name1, name2) -> name1 + ";" + name2));    // a ‘merge function, used to resolve collision for values associated with the same key
 
         System.out.println(map);
-        // {18=Max, 23=Peter;Pamela, 12=David}
+        // {18=Max, 23=Peter;Pamela, 12=David}  ==> because Peter & Pamela have the same key, some the merge function concatenated the names together
     }
 
+    /**
+     * If you want to write your Collector implementation, you need to implement Collector interface and specify its three generic parameters:
+     * public interface Collector<T, A, R> {...}
+     *  T – the type of objects that will be available for collection,
+     *  A – the type of a mutable accumulator object,
+     *  R – the type of a final result.
+     *
+     *  - Supplier<A>        supplier – The supplier function for the new collector
+     *  - BiConsumer<A, T>   accumulator – The accumulator function for the new collector
+     *  - BinaryOperator<A>  combiner – The combiner function for the new collector
+     *  - Function<A, R>     finisher – The finisher function for the new collector
+     *  - Characteristics... characteristics – The collector characteristics for the new collector  (3 dots means accepting ZERO or more parameters)
+     * *
+     * @param persons :
+     */
     private static void test7(List<Person> persons) {
+        // parameter types: Person (input type), StringJoiner (accumulator object type), String (result type)
         Collector<Person, StringJoiner, String> personNameCollector =
             Collector.of(
-                () -> new StringJoiner(" | "),          // supplier
+                () -> new StringJoiner(" | "),   // supplier
                 (j, p) -> j.add(p.name.toUpperCase()),  // accumulator
                 (j1, j2) -> j1.merge(j2),               // combiner
                 StringJoiner::toString);                // finisher
@@ -130,7 +146,7 @@ public class Streams10 {
         Collector<Person, StringJoiner, String> personNameCollector =
             Collector.of(
                 () -> {
-                    System.out.println("supplier");
+                    System.out.println("supplier");     // supplier
                     return new StringJoiner(" | ");
                 },
                 (j, p) -> {
@@ -138,13 +154,22 @@ public class Streams10 {
                     j.add(p.name.toUpperCase());
                 },
                 (j1, j2) -> {
-                    System.out.println("merge");
+                    System.out.println("merge!!!!!!!!!!!!!");
                     return j1.merge(j2);
                 },
                 j -> {
                     System.out.println("finisher");
                     return j.toString();
                 });
+
+        // all the print out by triggering the above:
+//        supplier
+//        accumulator: p=Max; j=
+//        accumulator: p=Peter; j=MAX
+//        accumulator: p=Pamela; j=MAX | PETER
+//        accumulator: p=David; j=MAX | PETER | PAMELA
+//        finisher
+
 
         String names = persons
             .stream()
