@@ -13,6 +13,8 @@ import java.util.stream.Stream;
 public class Streams5 {
 
     public static void main(String[] args) {
+        test0();
+
         List<String> strings =
             Arrays.asList("d2", "a2", "b1", "b3", "c");
 
@@ -21,9 +23,24 @@ public class Streams5 {
 //        test3(strings);
 //        test4(strings);
 //        test5(strings);
-//        test6(strings);
+        //test6(strings);
 //        test7(strings);
-        test8(strings);
+//        test8(strings);
+    }
+
+    private static void test0(){
+        List<String> myList =
+                Arrays.asList("a1", "a2", "b1", "c2", "c1");
+
+        myList
+                .stream()
+                .filter(s -> s.startsWith("c"))
+                .map(String::toUpperCase)
+                .sorted()
+                .forEach(System.out::println);
+        // print out:
+        //  C1
+        //  C2
     }
 
     private static void test8(List<String> stringCollection) {
@@ -46,7 +63,14 @@ public class Streams5 {
         stream.noneMatch(s -> true);
     }
 
-    // short-circuit
+    /** short-circuit
+     * prints out:
+     *      map:      d2
+     *      anyMatch: D2
+     *      map:      a2
+     *      anyMatch: A2
+     * @param stringCollection:
+     */
     private static void test6(List<String> stringCollection) {
         stringCollection
             .stream()
