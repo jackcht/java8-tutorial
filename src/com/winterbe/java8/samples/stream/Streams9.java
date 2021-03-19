@@ -14,7 +14,7 @@ public class Streams9 {
             .map(String::toUpperCase)
             .sorted()
             .forEach(System.out::println);
-
+        // since we called sorted() before printing, so see C1 before C2
         // C1
         // C2
     }
