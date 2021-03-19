@@ -4,6 +4,6 @@
     Concurrency1
 
 3. Stream
-    Stream5, 6, 7, 8, 10, 11, 12, 13
+    Stream7, 11, 12, 13
 
 4.
