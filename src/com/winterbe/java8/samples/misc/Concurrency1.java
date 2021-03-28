@@ -17,13 +17,18 @@ public class Concurrency1 {
 
         int threshold = 1;
 
+        // the first parameter here is the 'parallelismThreshold'
+        //      the (estimated) number of elements needed for this operation to be executed in parallel
         concurrentHashMap.forEachValue(threshold, System.out::println);
+        System.out.println("===============");
 
         concurrentHashMap.forEach((id, uuid) -> {
             if (id % 10 == 0) {
-                System.out.println(String.format("%s: %s", id, uuid));
+                System.out.printf("%s: %s%n", id, uuid);
             }
         });
+
+        System.out.println("===============");
 
         UUID searchResult = concurrentHashMap.search(threshold, (id, uuid) -> {
             if (String.valueOf(uuid).startsWith(String.valueOf(id))) {
