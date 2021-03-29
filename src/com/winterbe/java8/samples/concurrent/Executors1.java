@@ -20,7 +20,7 @@ public class Executors1 {
             try {
                 TimeUnit.SECONDS.sleep(seconds);
                 String name = Thread.currentThread().getName();
-                System.out.println("task finished: " + name);
+                System.out.println("task finished: " + name);       //task finished: pool-1-thread-1
             }
             catch (InterruptedException e) {
                 System.err.println("task interrupted");
@@ -33,6 +33,9 @@ public class Executors1 {
         try {
             System.out.println("attempt to shutdown executor");
             executor.shutdown();
+
+            // awaitTermination actually returns a boolean
+            //      Returns: true if this executor terminated and false if the timeout elapsed before termination
             executor.awaitTermination(5, TimeUnit.SECONDS);
         }
         catch (InterruptedException e) {
